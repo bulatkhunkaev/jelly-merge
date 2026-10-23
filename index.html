@@ -12,9 +12,10 @@
     #unity-canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; background: #0b0c14; outline: none; }
     /* экран загрузки: баннер Jelly Pop на весь экран (cover), под логотипом — индикатор */
     #loader { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-      overflow: hidden; background: #000; transition: opacity .5s; z-index: 10; }
+      overflow: hidden; background: #000; transition: opacity .5s; z-index: 10;
+      padding-top: var(--tg-top, 0px); box-sizing: border-box; }   /* не заезжаем под кнопки Telegram */
     #splash { position: relative; flex: none; aspect-ratio: 941 / 1672;
-      width: max(100vw, calc(100vh * 941 / 1672)); height: auto;
+      width: max(100vw, calc((100vh - var(--tg-top, 0px)) * 941 / 1672)); height: auto;
       background: url('TemplateData/splash3.jpg') center / 100% 100% no-repeat; }
     #bar { position: absolute; left: 50%; transform: translateX(-50%); top: 36.6%;
       width: min(46%, 82vw); height: 12px; padding: 4px; box-sizing: content-box;
@@ -29,16 +30,37 @@
   <canvas id="unity-canvas" tabindex="-1"></canvas>
   <div id="loader"><div id="splash"><div id="bar"><div id="fill"></div></div></div></div>
   <script>
-    // --- Telegram Mini App: на весь экран, без закрытия свайпом, цвет шапки под фон
+    // --- Telegram Mini App: на телефоне — полноэкранный режим (без шапки, кнопки Telegram поверх игры),
+    //     без закрытия свайпом; игра получает высоту зоны кнопок и опускает интерфейс под них
     var tg = window.Telegram && window.Telegram.WebApp;
+    var unityInst = null;
+    function topInsetCss() {
+      if (!tg) return 0;
+      var a = tg.safeAreaInset || {}, c = tg.contentSafeAreaInset || {};
+      return (a.top || 0) + (c.top || 0);
+    }
+    function pushInset() {
+      document.documentElement.style.setProperty('--tg-top', topInsetCss() + 'px');
+      if (!unityInst) return;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      try { unityInst.SendMessage('JellyGame', 'SetTopInset', String(topInsetCss() * dpr)); } catch (e) { }
+    }
     if (tg) {
       try {
         tg.ready();
         tg.expand();
+        var mobile = ['ios', 'android', 'android_x'].indexOf(tg.platform) >= 0;
+        if (mobile && tg.requestFullscreen && tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')) tg.requestFullscreen();
+        if (tg.lockOrientation && tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')) tg.lockOrientation();
         if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
-        if (tg.setHeaderColor) tg.setHeaderColor('#0b0c14');
-        if (tg.setBackgroundColor) tg.setBackgroundColor('#0b0c14');
-        if (tg.setBottomBarColor) tg.setBottomBarColor('#0b0c14');
+        if (tg.setHeaderColor) tg.setHeaderColor('#000000');
+        if (tg.setBackgroundColor) tg.setBackgroundColor('#000000');
+        if (tg.setBottomBarColor) tg.setBottomBarColor('#000000');
+        tg.onEvent('safeAreaChanged', pushInset);
+        tg.onEvent('contentSafeAreaChanged', pushInset);
+        tg.onEvent('fullscreenChanged', pushInset);
+        tg.onEvent('viewportChanged', pushInset);
+        pushInset();
       } catch (e) { }
     }
     // не даём странице прокручиваться и масштабироваться жестами
@@ -65,7 +87,11 @@
     script.onload = function () {
       createUnityInstance(canvas, config, function (p) {
         document.getElementById('fill').style.width = Math.round(p * 100) + '%';
-      }).then(function () {
+      }).then(function (instance) {
+        unityInst = instance;
+        pushInset();
+        setTimeout(pushInset, 300);
+        setTimeout(pushInset, 1200);
         var l = document.getElementById('loader');
         document.getElementById('fill').style.width = '100%';
         setTimeout(function () { l.style.opacity = 0; }, 250);
