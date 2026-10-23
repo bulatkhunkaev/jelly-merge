@@ -20,10 +20,18 @@
         var o = {}; if (opts) for (var k in opts) o[k] = opts[k];
         window.__jmOpts = JSON.stringify(o);
         if (isIOS) { delete o.sampleRate; o.latencyHint = 'playback'; }
+        try { if (navigator.audioSession && navigator.audioSession.type !== 'ambient') navigator.audioSession.type = 'ambient'; } catch (e) {}
         var c = new AC(o);
         window.__jmCtx = c;
         return c;
       };
+      // Просим iPhone играть звук как в игре, а не в «голосовом» режиме Telegram
+      // (там автоподстройка громкости срезает начало звуков — треск в динамике).
+      // 'ambient' уважает беззвучный режим и не глушит музыку пользователя.
+      window.__jmSession = 'n/a';
+      try {
+        if (navigator.audioSession) { navigator.audioSession.type = 'ambient'; window.__jmSession = navigator.audioSession.type; }
+      } catch (e) { window.__jmSession = 'err ' + e.message; }
       Patched.prototype = AC.prototype;
       window.AudioContext = Patched;
       if (window.webkitAudioContext) window.webkitAudioContext = Patched;
@@ -62,7 +70,8 @@
                   '\nrate ' + ctx.sampleRate + '  state ' + ctx.state +
                   '\nlatency ' + ((ctx.baseLatency || 0) * 1000).toFixed(1) + 'ms out ' + ((ctx.outputLatency || 0) * 1000).toFixed(1) + 'ms' +
                   '\nunity opts ' + (window.__jmOpts || '-') +
-                  '\npeak ' + (window.__jmPeak || 0).toFixed(2) + '  v23';
+                  '\nsession ' + (navigator.audioSession ? navigator.audioSession.type + '/' + navigator.audioSession.state : window.__jmSession) +
+                  '\npeak ' + (window.__jmPeak || 0).toFixed(2) + '  v24';
               }, 300);
             }
           }
