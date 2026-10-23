@@ -20,17 +20,22 @@
         get: function () {
           if (!this.__jmIn) {
             var real = desc.get.call(this);
+            // На iPhone Telegram сильно усиливает звук страницы после нашего выхода,
+            // и он упирается в предел уже внутри системы (треск). Поэтому там отдаём тише.
+            var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
+                      (window.Telegram && Telegram.WebApp && Telegram.WebApp.platform === 'ios');
             var input = this.createGain();
-            input.gain.value = 0.7;
+            input.gain.value = ios ? 0.2 : 0.7;
             var comp = this.createDynamicsCompressor();
-            comp.threshold.value = -12; comp.knee.value = 6; comp.ratio.value = 20;
+            comp.threshold.value = ios ? -18 : -12; comp.knee.value = 6; comp.ratio.value = 20;
             comp.attack.value = 0.002; comp.release.value = 0.12;
             input.connect(comp); comp.connect(real);
             if (dbg) { // замер пика до лимитера: window.__jmPeak
               var an = this.createAnalyser(); an.fftSize = 2048; input.connect(an);
               var buf = new Float32Array(2048); window.__jmPeak = 0; window.__jmRate = this.sampleRate;
               (function tick() { an.getFloatTimeDomainData(buf);
-                for (var i = 0; i < buf.length; i++) { var v = Math.abs(buf[i]) / 0.7; if (v > window.__jmPeak) window.__jmPeak = v; }
+                for (var i = 0; i < buf.length; i++) { var v = Math.abs(buf[i]) / input.gain.value; if (v > window.__jmPeak) window.__jmPeak = v; }
                 requestAnimationFrame(tick); })();
             }
             this.__jmIn = input;
