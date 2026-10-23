@@ -21,7 +21,7 @@
       width: min(46%, 82vw); height: 12px; padding: 4px; box-sizing: content-box;
       border-radius: 99px; background: rgba(10, 6, 24, .55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
       box-shadow: 0 0 16px rgba(0,0,0,.5); }
-    #fill { height: 100%; width: 0; border-radius: 99px; transition: width .25s;
+    #fill { height: 100%; width: 0; border-radius: 99px; transition: width .12s linear;
       background: linear-gradient(90deg, #ff2d8e, #ff8a12, #ffcc14, #44e01c, #1e6eff, #a83aff);
       box-shadow: 0 0 10px rgba(255,120,200,.7); }
   </style>
@@ -82,20 +82,39 @@
       devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2)   // чёткость без перегрева телефона
     };
 
+    // экран загрузки показываем минимум MIN_SPLASH мс: полоска идёт плавно,
+    // даже если игра загрузилась мгновенно (быстрый интернет / кэш)
+    var MIN_SPLASH = 2500;
+    var t0 = performance.now();
+    var realProgress = 0, loaded = false;
+    var fill = document.getElementById('fill');
+    function tick() {
+      var timeProgress = Math.min(1, (performance.now() - t0) / MIN_SPLASH);
+      var shown = Math.min(realProgress, timeProgress);
+      fill.style.width = Math.round(shown * 100) + '%';
+      if (loaded && timeProgress >= 1) { hideSplash(); return; }
+      requestAnimationFrame(tick);
+    }
+    function hideSplash() {
+      fill.style.width = '100%';
+      var l = document.getElementById('loader');
+      setTimeout(function () { l.style.opacity = 0; }, 200);
+      setTimeout(function () { l.remove(); }, 750);
+    }
+    requestAnimationFrame(tick);
+
     var script = document.createElement('script');
     script.src = buildUrl + '/Telegram.loader.js';
     script.onload = function () {
       createUnityInstance(canvas, config, function (p) {
-        document.getElementById('fill').style.width = Math.round(p * 100) + '%';
+        realProgress = p;
       }).then(function (instance) {
         unityInst = instance;
         pushInset();
         setTimeout(pushInset, 300);
         setTimeout(pushInset, 1200);
-        var l = document.getElementById('loader');
-        document.getElementById('fill').style.width = '100%';
-        setTimeout(function () { l.style.opacity = 0; }, 250);
-        setTimeout(function () { l.remove(); }, 800);
+        realProgress = 1;
+        loaded = true;
       }).catch(function (message) { alert(message); });
     };
     document.body.appendChild(script);
