@@ -9,6 +9,8 @@
     // Звук игры играет напрямую через Web Audio (JellyWebAudio.jslib).
     // Просим iPhone играть его как игру ('ambient': уважает беззвучный режим).
     try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (e) {}
+    // ссылка на игру для кнопки «Поделиться»
+    window.JM_GAME_LINK = 'https://t.me/JellyPops_bot?startapp';
   </script>
   <style>
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000;
