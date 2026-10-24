@@ -13,6 +13,19 @@
     window.JM_GAME_LINK = 'https://t.me/JellyPops_bot?startapp';
     // таблица рекордов (Supabase Edge Function)
     window.JM_LB_URL = 'https://iewmmjmqfvnuvcufbnst.supabase.co/functions/v1/hyper-handler';
+    // аналитика: событие (open / ready / game) — в ту же серверную функцию, таблица events
+    window.JM_Track = function (kind, extra) {
+      try {
+        var tg = window.Telegram && window.Telegram.WebApp;
+        var initData = (tg && tg.initData) || '';
+        if (!initData || !window.JM_LB_URL) return;      // вне Telegram не считаем
+        var body = { initData: initData, track: kind, platform: tg.platform || '' };
+        if (extra) for (var k in extra) body[k] = extra[k];
+        fetch(window.JM_LB_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body), keepalive: true }).catch(function () {});
+      } catch (e) {}
+    };
+    window.JM_Track('open');
   </script>
   <style>
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000;
@@ -80,9 +93,9 @@
     var buildUrl = 'Build';
     var config = {
       arguments: [],
-      dataUrl: buildUrl + '/07012fe46fbca1bdf94132fd73e93bdb.data.unityweb',
-      frameworkUrl: buildUrl + '/fdf09526da3e77940f95e2cb930cd5b2.framework.js.unityweb',
-      codeUrl: buildUrl + '/f0f026e1ff3c42512932d966c5d67f2d.wasm.unityweb',
+      dataUrl: buildUrl + '/e0225c96cf04a0812323d1ac8c225569.data.unityweb',
+      frameworkUrl: buildUrl + '/1013b27e1434209eb215fc5e28e61ec6.framework.js.unityweb',
+      codeUrl: buildUrl + '/2a48f1c7cae1c2edb274565bf53d1043.wasm.unityweb',
       streamingAssetsUrl: 'StreamingAssets',
       companyName: "Bulat",
       productName: "Jelly Merge",
@@ -113,7 +126,7 @@
     requestAnimationFrame(tick);
 
     var script = document.createElement('script');
-    script.src = buildUrl + '/a5de1769b37986e329a5f89c06e0092c.loader.js';
+    script.src = buildUrl + '/8799d1c10d34101fa10efca60ed31fc0.loader.js';
     script.onload = function () {
       createUnityInstance(canvas, config, function (p) {
         realProgress = p;
