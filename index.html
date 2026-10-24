@@ -48,7 +48,7 @@
             // и он упирается в предел уже внутри системы (треск). Поэтому там отдаём тише.
             var ios = isIOS;
             var input = this.createGain();
-            input.gain.value = ios ? 0.2 : 0.7;
+            input.gain.value = ios ? 0.14 : 0.7;
             var comp = this.createDynamicsCompressor();
             comp.threshold.value = ios ? -18 : -12; comp.knee.value = 6; comp.ratio.value = 20;
             comp.attack.value = 0.002; comp.release.value = 0.12;
@@ -71,7 +71,7 @@
                   '\nlatency ' + ((ctx.baseLatency || 0) * 1000).toFixed(1) + 'ms out ' + ((ctx.outputLatency || 0) * 1000).toFixed(1) + 'ms' +
                   '\nunity opts ' + (window.__jmOpts || '-') +
                   '\nsession ' + (navigator.audioSession ? navigator.audioSession.type + '/' + navigator.audioSession.state : window.__jmSession) +
-                  '\npeak ' + (window.__jmPeak || 0).toFixed(2) + '  v24';
+                  '\npeak ' + (window.__jmPeak || 0).toFixed(2) + '  v26';
               }, 300);
             }
           }
