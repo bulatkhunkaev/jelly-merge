@@ -44,14 +44,30 @@
       width: min(46%, 82vw); height: 12px; padding: 4px; box-sizing: content-box;
       border-radius: 99px; background: rgba(10, 6, 24, .55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
       box-shadow: 0 0 16px rgba(0,0,0,.5); }
-    #fill { height: 100%; width: 0; border-radius: 99px; transition: width .12s linear;
-      background: linear-gradient(90deg, #ff2d8e, #ff8a12, #ffcc14, #44e01c, #1e6eff, #a83aff);
-      box-shadow: 0 0 10px rgba(255,120,200,.7); }
+    /* полоска: мягкие цветные пятна плывут внутри (как у радужной желешки);
+       прогресс — обрезка clip-path, чтобы пятна не сжимались вместе с полоской */
+    #fw { height: 100%; filter: drop-shadow(0 0 6px rgba(255,110,200,.75)); }
+    #fill { height: 100%; width: 100%; border-radius: 99px;
+      -webkit-clip-path: inset(0 100% 0 0 round 99px); clip-path: inset(0 100% 0 0 round 99px);
+      transition: clip-path .12s linear, -webkit-clip-path .12s linear;
+      background-color: #ff2d8e;
+      background-image:
+        radial-gradient(ellipse 34px 16px at 50% 50%, #12d6ff, rgba(18,214,255,0) 100%),
+        radial-gradient(ellipse 30px 14px at 50% 40%, #a83aff, rgba(168,58,255,0) 100%),
+        radial-gradient(ellipse 32px 15px at 50% 60%, #ffcc14, rgba(255,204,20,0) 100%),
+        radial-gradient(ellipse 36px 16px at 50% 50%, #ff8a12, rgba(255,138,18,0) 100%);
+      background-size: 150px 100%, 210px 100%, 180px 100%, 250px 100%;
+      background-repeat: repeat-x;
+      animation: jm-flow 6s linear infinite; }
+    @keyframes jm-flow {
+      from { background-position: 0 0, 40px 0, 90px 0, 20px 0; }
+      to   { background-position: 150px 0, -170px 0, 270px 0, -230px 0; }
+    }
   </style>
 </head>
 <body>
   <canvas id="unity-canvas" tabindex="-1"></canvas>
-  <div id="loader"><div id="splash"><div id="bar"><div id="fill"></div></div></div></div>
+  <div id="loader"><div id="splash"><div id="bar"><div id="fw"><div id="fill"></div></div></div></div></div>
   <script>
     // --- Telegram Mini App: на телефоне — полноэкранный режим (без шапки, кнопки Telegram поверх игры),
     //     без закрытия свайпом; игра получает высоту зоны кнопок и опускает интерфейс под них
@@ -94,7 +110,7 @@
     var buildUrl = 'Build';
     var config = {
       arguments: [],
-      dataUrl: buildUrl + '/edcac9c247657f04768fe0fa941827af.data.unityweb',
+      dataUrl: buildUrl + '/dde1d5725c15fde31238c68d8b8e7ffe.data.unityweb',
       frameworkUrl: buildUrl + '/0666588774d56c3f77dd248c65fb248d.framework.js.unityweb',
       codeUrl: buildUrl + '/53d0519ee6ae0ddbcea8c0e600a7b666.wasm.unityweb',
       streamingAssetsUrl: 'StreamingAssets',
@@ -111,15 +127,19 @@
     var t0 = performance.now();
     var realProgress = 0, loaded = false;
     var fill = document.getElementById('fill');
+    function setFill(v) {
+      var c = 'inset(0 ' + (100 - Math.round(v * 100)) + '% 0 0 round 99px)';
+      fill.style.webkitClipPath = c; fill.style.clipPath = c;
+    }
     function tick() {
       var timeProgress = Math.min(1, (performance.now() - t0) / MIN_SPLASH);
       var shown = Math.min(realProgress, timeProgress);
-      fill.style.width = Math.round(shown * 100) + '%';
+      setFill(shown);
       if (loaded && timeProgress >= 1) { hideSplash(); return; }
       requestAnimationFrame(tick);
     }
     function hideSplash() {
-      fill.style.width = '100%';
+      setFill(1);
       var l = document.getElementById('loader');
       setTimeout(function () { l.style.opacity = 0; }, 200);
       setTimeout(function () { l.remove(); }, 750);

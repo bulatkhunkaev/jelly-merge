@@ -64,16 +64,19 @@
     c.shadowColor = glowCol; c.shadowBlur = r * 0.9;
     c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2);
     if (col === 'rainbow') {
-      var g;
-      if (c.createConicGradient) {
-        g = c.createConicGradient(0, x, y);
-        ['#ff2442', '#ff8a12', '#ffcc14', '#44e01c', '#12d6ff', '#1e6eff', '#a83aff', '#ff2d8e', '#ff2442']
-          .forEach(function (s, i, a) { g.addColorStop(i / (a.length - 1), s); });
-      } else {
-        g = c.createLinearGradient(x - r, y - r, x + r, y + r);
-        g.addColorStop(0, '#ff2442'); g.addColorStop(0.33, '#ffcc14'); g.addColorStop(0.66, '#12d6ff'); g.addColorStop(1, '#a83aff');
-      }
-      c.fillStyle = g;
+      // как в игре: мягкие цветные пятна поверх розового
+      c.fillStyle = '#ff2e8f'; c.fill();
+      c.shadowBlur = 0;
+      c.save(); c.clip();
+      [['255,138,18', -0.35, 0.35], ['255,204,20', 0.4, 0.45], ['168,58,255', 0.45, -0.3], ['18,214,255', -0.4, -0.4]]
+        .forEach(function (b) {
+          var bx = x + b[1] * r, by = y + b[2] * r;
+          var bg = c.createRadialGradient(bx, by, 0, bx, by, r * 0.75);
+          bg.addColorStop(0, 'rgba(' + b[0] + ',1)'); bg.addColorStop(1, 'rgba(' + b[0] + ',0)');
+          c.fillStyle = bg; c.fillRect(x - r, y - r, r * 2, r * 2);
+        });
+      c.restore();
+      c.fillStyle = 'rgba(0,0,0,0)';
     } else {
       var rg = c.createRadialGradient(x - r * 0.3, y - r * 0.35, r * 0.1, x, y, r);
       rg.addColorStop(0, shade(col, 0.45)); rg.addColorStop(0.55, col); rg.addColorStop(1, shade(col, -0.35));
