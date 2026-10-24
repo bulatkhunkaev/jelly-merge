@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Jelly Merge</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="TemplateData/story.js"></script>
   <script>
     // Звук игры играет напрямую через Web Audio (JellyWebAudio.jslib).
     // Просим iPhone играть его как игру ('ambient': уважает беззвучный режим).
@@ -93,9 +94,9 @@
     var buildUrl = 'Build';
     var config = {
       arguments: [],
-      dataUrl: buildUrl + '/e0225c96cf04a0812323d1ac8c225569.data.unityweb',
-      frameworkUrl: buildUrl + '/1013b27e1434209eb215fc5e28e61ec6.framework.js.unityweb',
-      codeUrl: buildUrl + '/2a48f1c7cae1c2edb274565bf53d1043.wasm.unityweb',
+      dataUrl: buildUrl + '/edcac9c247657f04768fe0fa941827af.data.unityweb',
+      frameworkUrl: buildUrl + '/0666588774d56c3f77dd248c65fb248d.framework.js.unityweb',
+      codeUrl: buildUrl + '/53d0519ee6ae0ddbcea8c0e600a7b666.wasm.unityweb',
       streamingAssetsUrl: 'StreamingAssets',
       companyName: "Bulat",
       productName: "Jelly Merge",
@@ -126,7 +127,7 @@
     requestAnimationFrame(tick);
 
     var script = document.createElement('script');
-    script.src = buildUrl + '/8799d1c10d34101fa10efca60ed31fc0.loader.js';
+    script.src = buildUrl + '/bee3e072ec9f76bcd25eb8dea53a10d7.loader.js';
     script.onload = function () {
       createUnityInstance(canvas, config, function (p) {
         realProgress = p;
