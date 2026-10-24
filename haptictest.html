@@ -1,0 +1,29 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Тест вибрации</title><script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>:root{--bg:#111;--c:#222;--t:#eee;--a:#ff2d8e}body{margin:0;background:var(--bg);color:var(--t);font:16px system-ui,sans-serif;padding:16px;padding-top:96px}
+h1{font-size:20px;margin:0 0 6px}p{color:#aaa;margin:0 0 14px;font-size:14px}.c{background:var(--c);border-radius:14px;padding:12px;margin-bottom:12px}
+.c b{display:block;margin-bottom:8px}.r{display:flex;gap:8px;flex-wrap:wrap}button{flex:1;min-width:30%;border:0;border-radius:10px;padding:14px 6px;background:#333;color:var(--t);font-size:15px}
+button:active{background:var(--a)}#info{font:12px monospace;color:#7f7;white-space:pre-wrap;background:#000;border-radius:10px;padding:10px}</style></head><body>
+<h1>Тест вибрации</h1><p>Держи телефон в руке и нажимай кнопки.</p>
+<div class="c"><b>1. Удар (impactOccurred)</b><div class="r">
+<button onclick="imp('light')">light</button><button onclick="imp('medium')">medium</button><button onclick="imp('heavy')">heavy</button>
+<button onclick="imp('rigid')">rigid</button><button onclick="imp('soft')">soft</button></div></div>
+<div class="c"><b>2. Уведомление (notificationOccurred)</b><div class="r">
+<button onclick="note('success')">success</button><button onclick="note('warning')">warning</button><button onclick="note('error')">error</button></div></div>
+<div class="c"><b>3. Выбор (selectionChanged)</b><div class="r"><button onclick="sel()">selection</button></div></div>
+<div class="c"><b>4. Со звуком как в игре</b><p>Сначала включает звук страницы (как в игре), потом вибрацию.</p><div class="r"><button onclick="withAudio()">звук + heavy</button></div></div>
+<div id="info"></div>
+<script>
+var tg=window.Telegram&&Telegram.WebApp; try{tg.ready();tg.expand();}catch(e){}
+var log=[];function show(x){log.unshift(new Date().toLocaleTimeString()+'  '+x);log=log.slice(0,8);render();}
+function render(){var i='platform: '+(tg?tg.platform:'нет Telegram')+'\nversion: '+(tg?tg.version:'-')+
+'\nHapticFeedback: '+(tg&&tg.HapticFeedback?'есть':'НЕТ')+'\nisVersionAtLeast(6.1): '+(tg&&tg.isVersionAtLeast?tg.isVersionAtLeast('6.1'):'-')+
+'\naudioSession: '+(navigator.audioSession?navigator.audioSession.type:'n/a')+'\n\n'+log.join('\n');document.getElementById('info').textContent=i;}
+function imp(s){try{tg.HapticFeedback.impactOccurred(s);show('impact '+s+' — отправлено');}catch(e){show('ошибка: '+e.message);}}
+function note(s){try{tg.HapticFeedback.notificationOccurred(s);show('notification '+s+' — отправлено');}catch(e){show('ошибка: '+e.message);}}
+function sel(){try{tg.HapticFeedback.selectionChanged();show('selection — отправлено');}catch(e){show('ошибка: '+e.message);}}
+var ctx=null;function withAudio(){try{if(navigator.audioSession)navigator.audioSession.type='ambient';}catch(e){}
+try{if(!ctx){ctx=new (window.AudioContext||window.webkitAudioContext)();}ctx.resume();var o=ctx.createOscillator(),g=ctx.createGain();g.gain.value=0.15;o.frequency.value=600;o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.08);}catch(e){show('звук: '+e.message);}
+setTimeout(function(){imp('heavy');},150);}
+render();
+</script></body></html>
