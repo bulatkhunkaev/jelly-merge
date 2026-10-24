@@ -6,53 +6,9 @@
   <title>Jelly Merge</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    // Лимитер на выходе звука: весь звук игры проходит через него,
-    // поэтому сумма звуков никогда не перегружает динамик (без треска и хрипа).
-    (function () {
-      var AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
-                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      // Свой звуковой контекст: на iPhone без принудительной частоты (иначе система
-      // пересчитывает звук на лету и он трещит) и с увеличенным буфером ('playback'),
-      // чтобы звук не прерывался, пока телефон рисует игру.
-      var Patched = function (opts) {
-        var o = {}; if (opts) for (var k in opts) o[k] = opts[k];
-        if (isIOS) { delete o.sampleRate; o.latencyHint = 'playback'; }
-        try { if (navigator.audioSession && navigator.audioSession.type !== 'ambient') navigator.audioSession.type = 'ambient'; } catch (e) {}
-        var c = new AC(o);
-        return c;
-      };
-      // Просим iPhone играть звук как в игре, а не в «голосовом» режиме Telegram
-      // (там автоподстройка громкости срезает начало звуков — треск в динамике).
-      // 'ambient' уважает беззвучный режим и не глушит музыку пользователя.
-      try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (e) {}
-      Patched.prototype = AC.prototype;
-      window.AudioContext = Patched;
-      if (window.webkitAudioContext) window.webkitAudioContext = Patched;
-      var proto = window.BaseAudioContext ? BaseAudioContext.prototype : AC.prototype;
-      var desc = Object.getOwnPropertyDescriptor(proto, 'destination');
-      if (!desc || !desc.get) return;
-      Object.defineProperty(proto, 'destination', {
-        configurable: true,
-        get: function () {
-          if (!this.__jmIn) {
-            var real = desc.get.call(this);
-            // На iPhone Telegram сильно усиливает звук страницы после нашего выхода,
-            // и он упирается в предел уже внутри системы (треск). Поэтому там отдаём тише.
-            var ios = isIOS;
-            var input = this.createGain();
-            input.gain.value = ios ? 0.14 : 0.7;
-            var comp = this.createDynamicsCompressor();
-            comp.threshold.value = ios ? -18 : -12; comp.knee.value = 6; comp.ratio.value = 20;
-            comp.attack.value = 0.002; comp.release.value = 0.12;
-            input.connect(comp); comp.connect(real);
-            this.__jmIn = input;
-          }
-          return this.__jmIn;
-        }
-      });
-    })();
+    // Звук игры играет напрямую через Web Audio (JellyWebAudio.jslib).
+    // Просим iPhone играть его как игру ('ambient': уважает беззвучный режим).
+    try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (e) {}
   </script>
   <style>
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000;
@@ -120,9 +76,9 @@
     var buildUrl = 'Build';
     var config = {
       arguments: [],
-      dataUrl: buildUrl + '/11a9a497ea1803cf15846c94282fd76e.data.unityweb',
-      frameworkUrl: buildUrl + '/d15f2390c393abb6a2f56ed451119832.framework.js.unityweb',
-      codeUrl: buildUrl + '/26d3717f219a31f33c5fed4f3e1ebbfb.wasm.unityweb',
+      dataUrl: buildUrl + '/d527ced8232872e009e6e7f8f2db3826.data.unityweb',
+      frameworkUrl: buildUrl + '/18c36d3e8d250e6310828ffebdd1bd08.framework.js.unityweb',
+      codeUrl: buildUrl + '/4fb09512ecb2f089665679f1342f9603.wasm.unityweb',
       streamingAssetsUrl: 'StreamingAssets',
       companyName: "Bulat",
       productName: "Jelly Merge",
@@ -153,7 +109,7 @@
     requestAnimationFrame(tick);
 
     var script = document.createElement('script');
-    script.src = buildUrl + '/25829c6c1985f4d77528bb5b36fc7a13.loader.js';
+    script.src = buildUrl + '/9227d1bb5cb4cff0edb6627fa4da334f.loader.js';
     script.onload = function () {
       createUnityInstance(canvas, config, function (p) {
         realProgress = p;
