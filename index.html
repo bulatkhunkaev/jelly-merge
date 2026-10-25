@@ -41,28 +41,23 @@
       width: max(100vw, calc((100vh - var(--tg-top, 0px)) * 941 / 1672)); height: auto;
       background: url('TemplateData/splash3.jpg') center / 100% 100% no-repeat; }
     #bar { position: absolute; left: 50%; transform: translateX(-50%); top: 36.6%;
-      width: min(46%, 82vw); height: 12px; padding: 4px; box-sizing: content-box;
-      border-radius: 99px; background: rgba(10, 6, 24, .55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-      box-shadow: 0 0 16px rgba(0,0,0,.5); }
-    /* полоска: мягкие цветные пятна плывут внутри (как у радужной желешки);
-       прогресс — обрезка clip-path, чтобы пятна не сжимались вместе с полоской */
-    #fw { height: 100%; filter: drop-shadow(0 0 6px rgba(255,110,200,.75)); }
-    #fill { height: 100%; width: 100%; border-radius: 99px;
+      width: min(46%, 82vw); height: 14px; padding: 4px; box-sizing: content-box;
+      border-radius: 99px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      box-shadow: 0 0 16px rgba(0,0,0,.45); }
+    /* полоска: перламутрово-белая, как буквы «Pop» в логотипе;
+       прогресс — обрезка clip-path; по полоске пробегает мягкий блик */
+    #fw { height: 100%; filter: drop-shadow(0 0 7px rgba(230,210,255,.85)); }
+    #fill { position: relative; overflow: hidden; height: 100%; width: 100%; border-radius: 99px;
       -webkit-clip-path: inset(0 100% 0 0 round 99px); clip-path: inset(0 100% 0 0 round 99px);
       transition: clip-path .12s linear, -webkit-clip-path .12s linear;
-      background-color: #ff2d8e;
-      background-image:
-        radial-gradient(ellipse 34px 16px at 50% 50%, #12d6ff, rgba(18,214,255,0) 100%),
-        radial-gradient(ellipse 30px 14px at 50% 40%, #a83aff, rgba(168,58,255,0) 100%),
-        radial-gradient(ellipse 32px 15px at 50% 60%, #ffcc14, rgba(255,204,20,0) 100%),
-        radial-gradient(ellipse 36px 16px at 50% 50%, #ff8a12, rgba(255,138,18,0) 100%);
-      background-size: 150px 100%, 210px 100%, 180px 100%, 250px 100%;
-      background-repeat: repeat-x;
-      animation: jm-flow 6s linear infinite; }
-    @keyframes jm-flow {
-      from { background-position: 0 0, 40px 0, 90px 0, 20px 0; }
-      to   { background-position: 150px 0, -170px 0, 270px 0, -230px 0; }
-    }
+      background: linear-gradient(180deg, #ffffff 0%, #f3eaff 45%, #dccaf6 100%); }
+    #fill::before { content: ''; position: absolute; left: 6px; right: 6px; top: 2px; height: 4px;
+      border-radius: 99px; background: rgba(255,255,255,.95); }
+    #fill::after { content: ''; position: absolute; top: 0; bottom: 0; width: 60px; left: -60px;
+      background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,240,252,.9), rgba(255,255,255,0));
+      animation: jm-sheen 1.8s ease-in-out infinite; }
+    @keyframes jm-sheen { from { left: -60px; } to { left: 100%; } }
   </style>
 </head>
 <body>
@@ -110,9 +105,9 @@
     var buildUrl = 'Build';
     var config = {
       arguments: [],
-      dataUrl: buildUrl + '/d92a4b515be0f07a03a4701f7260096b.data.unityweb',
-      frameworkUrl: buildUrl + '/d31bfcdeb8177b59a7f96e3cd35f5886.framework.js.unityweb',
-      codeUrl: buildUrl + '/8464f3b309ae8df8e5407adad5fb328b.wasm.unityweb',
+      dataUrl: buildUrl + '/84b2323604d65676dcf83774aaec444a.data.unityweb',
+      frameworkUrl: buildUrl + '/4105fc37528de143eb05e003f74e302e.framework.js.unityweb',
+      codeUrl: buildUrl + '/88ff31b86f06e26ffb9938dd5ae3eba9.wasm.unityweb',
       streamingAssetsUrl: 'StreamingAssets',
       companyName: "Bulat",
       productName: "Jelly Merge",
@@ -147,7 +142,7 @@
     requestAnimationFrame(tick);
 
     var script = document.createElement('script');
-    script.src = buildUrl + '/ca5a8fce51c8f2be8c45e4ee4598dd07.loader.js';
+    script.src = buildUrl + '/59c8ac37fac9b9d24932c09f6b3454da.loader.js';
     script.onload = function () {
       createUnityInstance(canvas, config, function (p) {
         realProgress = p;
