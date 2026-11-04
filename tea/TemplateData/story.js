@@ -3,7 +3,7 @@
 // в хранилище Supabase и открывает редактор историй Telegram (WebApp.shareToStory, Bot API 7.8+).
 (function () {
   var W = 1080, H = 1920;
-  var COLORS = ['#FF2442', '#A83AFF', '#1E6EFF', '#44E01C', '#FFCC14', '#FF8A12', '#FF2D8E', '#12D6FF', '#F2F4FF', 'rainbow'];
+  var COLORS = ['#A83AFF', '#44E01C', '#FF8A12', '#FF2D8E', '#12D6FF', '#F2F4FF', 'rainbow'];
   var base = (document.currentScript && document.currentScript.src) ? document.currentScript.src.replace(/[^/]*$/, '') : 'TemplateData/';
 
   function tg() { return window.Telegram && window.Telegram.WebApp; }
@@ -57,7 +57,7 @@
 
   /** Желешка: круг с объёмом, бликом и личиком. */
   function drawJelly(c, x, y, r, level) {
-    var col = COLORS[Math.max(0, Math.min(9, level))];
+    var col = COLORS[Math.max(0, Math.min(COLORS.length - 1, level))];
     c.save();
     // свечение
     var glowCol = col === 'rainbow' ? '#ff5adc' : col;
@@ -157,7 +157,7 @@
       c.textAlign = 'right';
       c.fillStyle = '#fff';
       c.font = F(46);
-      var lvl = (Math.min(9, maxlvl) + 1) + '/10';
+      var lvl = (Math.min(COLORS.length - 1, maxlvl) + 1) + '/' + COLORS.length;
       c.fillText(lvl, px + pw - 44, py + ph / 2 + 2);
       var room = pw - 44 - c.measureText(lvl).width - 30 - 150;   // место под подпись
       c.textAlign = 'left';
